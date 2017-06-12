@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@2.3.0/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios@0.16.1/dist/axios.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    outerCounter: <input type="text" v-model="outerCounter"><br>
+    innerCounter: <input type="text" v-model="innerCounter"><br>
+    noSetterCounter: <input type="text" v-model="noSetterCounter"><br>
+    data-counter:<input type="text" v-model="counter"><br>
+    data-counter2:<input type="text" v-model="counter2"><br>
+    <h3>outerCounter {{ outerCounter }}</h3>
+    <h3>innerCounter {{ innerCounter }}</h3>
+    <h3>noSetterCounter {{ noSetterCounter }}</h3>
+    <h3>data-couter {{ counter }}</h3>
+    <h3>data-couter2 {{ counter2 }}</h3>
+    <button v-on:click="outerIncrement">outerIncrement</button>
+    <button v-on:click="innerIncrement">innerIncrement</button>
+    <button v-on:click="counterIncrement">counterIncrement</button>
+  </div>
+  <script>
+  new Vue({
+    el: '#app',
+    data: {
+      counter: 0,
+      counter2: 0
+    },
+    computed: {
+      noSetterCounter () {
+        return (+this.counter) + (+this.counter2)
+      },
+      outerCounter: {
+        get () {
+          // 當 this.counter 或 this.counter2 更新時，outerCounter 就會被更新
+          return (+this.counter) + (+this.counter2)
+        },
+        set (val) {
+          // this.outerCounter 被設值時會觸發
+          // 可以取得 this.outerCounter 被設定的值
+          console.log('outerCounter setter', val)
+        }
+      },
+      innerCounter: {
+        get () {
+          // 當 this.counter 或 this.counter2 更新時，innerCounter 就會被更新
+          return {
+            counter: this.counter,
+            counter2: this.counter2
+          }
+        },
+        set (val) {
+          // this.innerCounter 被設值時會觸發
+          // 可以取得 this.innerCounter 被設定的值
+          // 但是如果是 this.innerCounter.counter 被設值時，則不會觸發
+          console.log('innerCounter setter', val)
+        }
+      }
+    },
+    methods: {
+      outerIncrement () {
+        console.log('this.outerCounter++')
+        // 無法直接修改 this.outerCounter ，這只會觸發 outerCounter 的 setter
+        this.outerCounter += 10
+      },
+      innerIncrement () {
+        console.log('this.innerCounter.counter++')
+        // 無法直接修改 this.outerCounter ，也不會觸發 innerCounter 的 setter
+        // 若要觸發 innerCounter，需要對 this.innerCounter 自身改值，而不能會其屬性
+        this.innerCounter.counter++
+      },
+      counterIncrement () {
+        // console.log('innerIncrement')
+        this.counter++
+      }
+
+    },
+    created () {
+      // 無法直接寫入 computed 的屬性
+      this.noSetterCounter += 2
+      this.outerCounter += 2
+
+      // 可以直接寫入 computed 屬性內的物件
+      this.innerCounter.counter += 2
+        // console.log('created')
+    },
+    beforeMount () {
+      // console.log('beforeMount')
+    },
+    mounted () {
+      // console.log('mounted')
+    },
+    beforeUpdate () {
+      // console.log('beforeUpdate')
+    },
+    updated () {
+      // console.log('updated')
+    }
+  })
+  </script>
+</body>
+
+</html>

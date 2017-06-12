@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src="https://unpkg.com/vue@2.3.0/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios@0.16.1/dist/axios.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <h3>firstName {{ firstName }}</h3>
+    <h3>lastName {{ lastName }}</h3>
+    <h3>fullName {{ fullName }}</h3>
+    <h3>fullNameDeep {{ fullNameDeep }}</h3><span>firstName: </span>
+    <input type="text" v-model="firstName" />
+    <br/><span>lastName: </span>
+    <input type="text" v-model="lastName" />
+    <br/><span>fullName: </span>
+    <input type="text" v-model="fullName" />
+    <br/><span>fullNameDeep: </span>
+    <input type="text" v-model="fullNameDeep" />
+    <br/>
+  </div>
+  <script>
+  // 舉例
+  new Vue({
+    el: '#app',
+    data: {
+      firstName: 'Aaron',
+      lastName: 'Chen'
+    },
+    computed: {
+      fullName: {
+        get() {
+          // 當 firstName 或 lastName 改變時，會觸發 computed
+          return this.firstName + ' ' + this.lastName
+        },
+        set(val) {
+          // 當 fullName 被設值時，會觸發這個 setter；val 表示被設定的值
+          // 除非 setter 裡面有改變到 getter 裡面監控的值，否則不會重新 get
+          let fullName = val.split(' ')
+            // this.firstName = fullName[0]
+            // this.lastName = fullName[1]
+          console.log('val', val)
+        }
+      },
+      fullNameDeep: {
+        get() {
+          console.log('computed fullNameDeep')
+            // 當 firstName 或 lastName 改變時，會觸發 computed
+          return {
+            firstName: this.firstName,
+            lastName: this.lastName
+          }
+        },
+        set(val) {
+          // 當 this.fullNameDeep 被設值時才會觸發，如果是 this.fullNameDeep.firstName 被設值則不會
+          console.log('val', val)
+            // 雖然值會被給進去，但因為畫面沒有重新 render 所以看不出來
+          this.fullNameDeep.firstName = 'Andy'
+        }
+      }
+    },
+    created() {
+      console.log('created')
+        // this.fullName = 'Andy Chang'    // 無法直接把資料寫進去，但觸發 fullName 的 setter
+      this.fullNameDeep.firstName = 'Andy' // 不受監控，可以直接寫資料進去，不會觸發 fullNameDeep 的 setter
+      this.fullNameDeep.lastName = 'Wang'  // 不受監控，可以直接寫資料進去，不會觸發 fullNameDeep 的 setter
+    },
+    beforeMount() {
+      console.log('beforeMount')
+    },
+    mounted() {
+      console.log('mounted')
+    },
+    updated() {
+      console.log('updated')
+    }
+
+  })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Demo Vue</title>
+  <script src="https://unpkg.com/vue@2.3.0/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios@0.16.1/dist/axios.js"></script>
+
+</head>
+<body>
+  <div id="app">
+    <h1>{{ title }}</h1>
+    <h2>{{ body }}</h2>
+    <h3>{{ id }}</h3>
+  </div>
+  
+
+  <script>
+    const vm = new Vue({
+      el: '#app',
+      data: {
+        currentId: 0,
+        posts: [],
+        title: '',
+        body: ''
+      },
+      computed: {
+        // 除非有需要，否則 computed 的屬性在 vm 初次 create 時不會先被執行一次
+        // 如果有需要，則 computed 會在 beforeMound 和 mounted 之間執行
+        id () {
+          console.log('id computed')
+          return `post${this.currentId}`
+        }
+      },
+      methods: {
+        getCurrentId () {
+          console.log('getCurrentId', this.currentId)
+        }
+      },
+      beforeCreate () {
+        // 在 berforeCrate 資料沒 bind 上 vm，所以 this 拿不到資料
+        console.log('beforeCreate')
+      },
+      created () {
+        // created 之後可以 data bind 上 vm ，可以透過 this 拿到資料
+        console.log('created')
+        let self = this
+        // 這裡面用 AJAX 取得資料
+        axios({
+          method: 'get',
+          url: 'https://jsonplaceholder.typicode.com/posts/'
+        })
+        .then(function (response) {
+          // 把 AJAX 取得的資料代入 Vue 中
+          self.posts = response.data
+
+          // 更新需要初始化的資料
+          self.title = self.posts[self.currentId].title
+          self.body = self.posts[self.currentId].body
+          console.log('getResponse')
+        })
+        .catch(function (error) {
+          console.log('err', error)
+        })
+      },
+      beforeMount () {
+        console.log('beforeMount')
+      },
+      mounted () {
+        // vm 初次 create 時，會從 beforeCreate 執行到這裡（mounted）
+        console.log('mounted')
+      },
+      beforeUpdate () {
+        console.log('beforeUpdate')
+      },
+      updated () {
+        console.log('updated')
+      }
+    })
+  </script>
+</body>
+</html>
